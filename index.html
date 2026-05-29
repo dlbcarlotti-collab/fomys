@@ -2,503 +2,796 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>FormyS</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
   --paper: #faf9f6;
   --ink: #1a1a1a;
   --ink-muted: #555;
-  --ink-faint: #999;
-  --rule: #c8c4ba;
+  --ink-faint: #aaa;
+  --rule: #d0ccc4;
   --hbg: #1a1a1a;
   --hfg: #faf9f6;
   --accent: #2a52a0;
   --accent-light: #e8edf8;
+  --danger: #c0392b;
   --success: #1a6b3a;
-  --fborder: #b0aa9e;
-  --shadow: 0 2px 12px rgba(0,0,0,0.10);
   --serif: 'IBM Plex Serif', Georgia, serif;
   --sans: 'IBM Plex Sans', system-ui, sans-serif;
-  --r: 4px;
+  --r: 6px;
+  --shadow: 0 4px 20px rgba(0,0,0,0.12);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--sans); background: #e8e5df; color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+body { font-family: var(--sans); background: #dedad4; color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
 
 /* TOP BAR */
-#topbar { background: var(--hbg); color: var(--hfg); padding: 0 16px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-.brand { font-family: var(--serif); font-size: 18px; letter-spacing: .02em; }
+.topbar { background: var(--hbg); color: var(--hfg); padding: 0 16px; height: 52px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.brand { font-family: var(--serif); font-size: 19px; letter-spacing: .02em; }
 .brand span { color: #7eb3f7; }
-#view-toggle { display: flex; border: 1px solid rgba(255,255,255,.25); border-radius: 6px; overflow: hidden; }
-#view-toggle button { background: transparent; border: none; color: rgba(255,255,255,.6); font-size: 11px; font-family: var(--sans); padding: 5px 12px; cursor: pointer; transition: all .15s; text-transform: uppercase; letter-spacing: .03em; }
-#view-toggle button.active { background: rgba(255,255,255,.15); color: #fff; }
+.btn-back { background: none; border: none; color: rgba(255,255,255,.7); font-size: 26px; cursor: pointer; padding: 4px 6px; line-height: 1; }
+.btn-back:hover { color: #fff; }
+.viewer-title { font-family: var(--serif); font-size: 14px; flex: 1; padding: 0 8px; }
+.btn-submit-final { background: var(--success); color: #fff; border: none; border-radius: var(--r); font-size: 12px; font-family: var(--sans); font-weight: 600; padding: 7px 14px; cursor: pointer; white-space: nowrap; }
 
-/* FORM SELECTOR */
-#form-selector { background: var(--paper); border-bottom: 1px solid var(--rule); padding: 10px 16px; display: flex; gap: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-#form-selector::-webkit-scrollbar { display: none; }
-.form-tab { white-space: nowrap; font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--rule); background: transparent; color: var(--ink-muted); cursor: pointer; font-family: var(--sans); transition: all .15s; flex-shrink: 0; }
-.form-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+/* PORTAL */
+#screen-portal { background: #dedad4; }
+.portal-header { background: var(--hbg); color: var(--hfg); padding: 24px 20px 28px; text-align: center; }
+.portal-logo { width: 64px; height: 64px; border-radius: 16px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 22px; color: #fff; margin: 0 auto 12px; }
+.portal-client { font-family: var(--serif); font-size: 20px; margin-bottom: 4px; }
+.portal-tagline { font-size: 13px; color: rgba(255,255,255,.5); }
+.portal-forms { padding: 20px 16px; flex: 1; }
+.portal-forms h2 { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 14px; }
+.form-card { background: var(--paper); border-radius: 12px; padding: 18px 16px; margin-bottom: 12px; cursor: pointer; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.08); transition: transform .15s, box-shadow .15s; }
+.form-card:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,.12); }
+.form-card:active { transform: scale(.98); }
+.form-card-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.form-card-info { flex: 1; }
+.form-card-title { font-weight: 600; font-size: 14px; margin-bottom: 3px; }
+.form-card-desc { font-size: 12px; color: var(--ink-muted); line-height: 1.4; }
+.form-card-arrow { color: var(--ink-faint); font-size: 20px; }
+.portal-footer { padding: 16px; text-align: center; font-size: 11px; color: var(--ink-faint); }
 
-/* PROGRESS */
-#progress-bar { background: var(--rule); height: 3px; }
-#progress-fill { height: 3px; background: var(--accent); transition: width .3s ease; width: 0%; }
-#progress-label { font-size: 11px; color: var(--ink-faint); padding: 6px 16px 0; letter-spacing: .02em; min-height: 22px; }
+/* A4 VIEWER */
+#screen-viewer { background: #dedad4; }
+.a4-scroll { flex: 1; overflow-y: auto; padding: 16px; }
+.a4-paper { background: #fff; max-width: 600px; margin: 0 auto; box-shadow: var(--shadow); border-radius: 2px; padding: 32px 28px; }
+.a4-form-title { font-family: var(--serif); font-size: 12px; font-weight: 500; text-align: center; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 14px; line-height: 1.5; }
+.a4-hr { border: none; border-top: 1.5px solid var(--ink); margin-bottom: 12px; }
+.a4-sec-header { background: var(--hbg); color: var(--hfg); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; padding: 3px 7px; margin: 10px 0 7px; }
+.a4-sec-centered { text-align: center; font-size: 10px; font-weight: 600; text-decoration: underline; text-transform: uppercase; letter-spacing: .04em; margin: 12px 0 7px; }
+.a4-legal-text { font-size: 8px; line-height: 1.6; color: #333; margin: 8px 0; }
+.a4-static-box { display: grid; grid-template-columns: 1fr 1fr; font-size: 8px; border: 1px solid #333; padding: 3px 6px; margin: 6px 0; gap: 2px; }
+.a4-notice-text { font-size: 8px; font-style: italic; margin: 7px 0 4px; }
+.a4-divider-line { border: none; border-top: 1px solid var(--rule); margin: 14px 0; }
+.a4-emergency-text { text-align: center; font-size: 8.5px; font-weight: 600; margin-top: 10px; font-style: italic; }
+.a4-row { display: grid; }
+.a4-row.cols-2 { grid-template-columns: 1fr 1fr; }
+.a4-row.cols-1 { grid-template-columns: 1fr; }
+.a4-field-cell { padding: 4px 3px; border-bottom: .5px solid #ccc; cursor: pointer; transition: background .15s; }
+.a4-field-cell:hover { background: #f0f4ff; }
+.a4-field-cell.has-error { border-bottom: 1.5px solid var(--danger) !important; background: #fff5f5; }
+.a4-field-lbl { font-size: 8px; font-weight: 600; color: #333; display: block; margin-bottom: 1px; }
+.req-star { color: var(--danger); }
+.a4-field-val { font-size: 10px; font-family: var(--serif); color: var(--ink); min-height: 14px; line-height: 1.3; }
+.a4-field-val.placeholder { color: var(--ink-faint); font-style: italic; font-size: 9px; }
+.a4-checks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; margin: 4px 0; }
+.a4-check-cell { display: flex; align-items: flex-start; gap: 4px; padding: 2px 3px; font-size: 8.5px; line-height: 1.3; cursor: pointer; border-radius: 2px; transition: background .1s; }
+.a4-check-cell:hover { background: #f0f4ff; }
+.a4-box { width: 10px; height: 10px; border: 1px solid #333; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 8px; }
+.a4-box.ticked { background: #333; color: #fff; }
+.a4-sig-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-top: 10px; }
+.a4-sig-grid.two { grid-template-columns: 1fr 1fr; }
+.a4-sig-cell { cursor: pointer; }
+.a4-sig-cell-lbl { font-size: 8px; font-weight: 600; margin-bottom: 2px; }
+.a4-sig-line { border-bottom: 1px solid #333; min-height: 26px; display: flex; align-items: flex-end; padding-bottom: 1px; transition: background .1s; }
+.a4-sig-cell:hover .a4-sig-line { background: #f0f4ff; }
+.a4-sig-line img { max-height: 24px; }
+.a4-sig-line span { font-family: var(--serif); font-style: italic; font-size: 11px; }
+.a4-footer-legal { font-size: 7px; color: #666; margin-top: 12px; border-top: .5px solid #ccc; padding-top: 6px; font-style: italic; line-height: 1.5; }
 
-/* FIELD VIEW */
-#field-view { padding: 16px; max-width: 480px; margin: 0 auto; }
-.field-card { background: var(--paper); border-radius: 10px; border: 1px solid var(--rule); box-shadow: var(--shadow); padding: 24px 20px 20px; animation: slideIn .2s ease; }
-@keyframes slideIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-.field-section-label { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 12px; }
-.field-label { font-family: var(--serif); font-size: 17px; color: var(--ink); margin-bottom: 16px; line-height: 1.4; }
-.field-required { color: #c0392b; margin-left: 2px; }
-.field-input { width: 100%; background: #fff; border: 1.5px solid var(--fborder); border-radius: var(--r); font-size: 16px; font-family: var(--sans); color: var(--ink); padding: 10px 12px; transition: border-color .15s; -webkit-appearance: none; }
-.field-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(42,82,160,.12); }
-.checkbox-group { display: flex; flex-direction: column; gap: 10px; }
-.checkbox-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1.5px solid var(--rule); border-radius: var(--r); cursor: pointer; transition: border-color .15s, background .15s; }
-.checkbox-item:hover, .checkbox-item.checked { border-color: var(--accent); background: var(--accent-light); }
-.checkbox-item input[type="checkbox"] { width: 18px; height: 18px; margin-top: 1px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
-.checkbox-item label { font-size: 14px; color: var(--ink); cursor: pointer; line-height: 1.4; }
-.legal-card { background: #f2f0eb; border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: var(--r); padding: 14px 14px 14px 16px; font-size: 12px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 16px; }
-.legal-static { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--rule); font-size: 11px; color: var(--ink-muted); }
-.legal-static div { margin-bottom: 2px; }
-.legal-static strong { color: var(--ink); }
-.sig-wrap { border: 1.5px solid var(--fborder); border-radius: var(--r); background: #fff; position: relative; }
-.sig-wrap canvas { display: block; width: 100%; height: 120px; cursor: crosshair; touch-action: none; }
-.sig-placeholder { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 12px; color: var(--ink-faint); pointer-events: none; font-style: italic; }
-.sig-clear { font-size: 11px; color: var(--accent); background: none; border: none; cursor: pointer; padding: 4px 0; font-family: var(--sans); display: block; margin-top: 4px; }
-.field-nav { display: flex; gap: 10px; margin-top: 20px; }
-.btn-prev, .btn-next, .btn-submit { flex: 1; padding: 13px; border-radius: var(--r); font-size: 15px; font-family: var(--sans); cursor: pointer; transition: all .15s; border: none; font-weight: 500; }
-.btn-prev { background: transparent; border: 1.5px solid var(--rule); color: var(--ink-muted); }
-.btn-prev:hover { border-color: var(--ink-muted); }
-.btn-next { background: var(--accent); color: #fff; }
-.btn-next:hover { background: #1e3d7a; }
-.btn-submit { background: var(--success); color: #fff; }
-.btn-submit:hover { background: #145530; }
+/* INPUT SCREEN */
+#screen-input { background: #dedad4; }
+.mini-preview-wrap { background: #c8c4be; padding: 10px 12px; display: flex; justify-content: center; flex-shrink: 0; }
+.mini-a4 { background: #fff; width: 100%; max-width: 480px; border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,.15); padding: 10px; position: relative; overflow: hidden; max-height: 140px; }
+.mini-a4-title { font-size: 6px; font-family: var(--serif); text-align: center; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 5px; color: #333; font-weight: 600; }
+.mini-fields { display: flex; flex-wrap: wrap; gap: 3px; }
+.mini-field { flex: 1; min-width: 80px; border-bottom: .5px solid #bbb; padding: 2px 3px; }
+.mini-field-lbl { font-size: 5px; color: #666; font-weight: 600; }
+.mini-field-val { font-size: 6px; font-family: var(--serif); color: #333; min-height: 8px; }
+.mini-field.highlighted { background: #dbeafe; border: 1px solid var(--accent); border-radius: 1px; position: relative; }
+.mini-arrow { position: absolute; right: 2px; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--accent); font-weight: bold; }
 
-/* OVERVIEW */
-#overview-view { padding: 16px; display: none; }
-.a4-sheet { background: #fff; max-width: 640px; margin: 0 auto; box-shadow: 0 4px 24px rgba(0,0,0,.18); border-radius: 2px; padding: 36px 40px; }
-.a4-title { font-family: var(--serif); font-size: 13px; font-weight: 500; text-align: center; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 16px; line-height: 1.4; }
-.a4-rule { border: none; border-top: 1.5px solid var(--ink); margin-bottom: 14px; }
-.a4-section-header { background: var(--hbg); color: var(--hfg); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; padding: 4px 8px; margin: 12px -2px 8px; }
-.a4-section-header-centered { text-align: center; font-weight: 500; font-size: 11px; text-decoration: underline; margin: 14px 0 8px; text-transform: uppercase; letter-spacing: .04em; }
-.a4-fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-.a4-field { padding: 5px 4px; border-bottom: 1px solid #ddd; }
-.a4-field.full { grid-column: 1/-1; }
-.a4-field-label { font-size: 9px; font-weight: 500; display: block; margin-bottom: 2px; }
-.a4-field-value { font-size: 11px; min-height: 16px; border-bottom: .5px solid #aaa; padding-bottom: 1px; font-family: var(--serif); }
-.a4-field-value.empty { color: var(--ink-faint); font-style: italic; }
-.a4-legal { font-size: 8.5px; line-height: 1.55; margin: 10px 0; }
-.a4-static-info { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; font-size: 9px; margin: 6px 0; border: 1px solid var(--ink); padding: 4px 6px; }
-.a4-static-item strong { font-weight: 500; }
-.a4-checkboxes { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin: 4px 0; }
-.a4-check-item { display: flex; align-items: flex-start; gap: 5px; font-size: 9.5px; padding: 2px 0; line-height: 1.3; }
-.a4-box { width: 10px; height: 10px; border: 1px solid var(--ink); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 500; }
-.a4-box.checked { background: var(--ink); color: #fff; }
-.a4-notice { font-size: 9px; font-style: italic; margin: 8px 0 4px; }
-.a4-sig-row { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-top: 12px; align-items: end; }
-.a4-sig-row.two-col { grid-template-columns: 1fr 1fr; }
-.a4-sig-label { font-size: 9px; font-weight: 500; margin-bottom: 2px; }
-.a4-sig-line { border-bottom: 1px solid var(--ink); min-height: 28px; display: flex; align-items: flex-end; padding-bottom: 2px; }
-.a4-sig-value { font-family: var(--serif); font-style: italic; font-size: 12px; }
-.a4-sig-img { max-height: 28px; max-width: 100%; }
-.a4-footer { font-size: 7.5px; color: var(--ink-muted); margin-top: 14px; line-height: 1.5; font-style: italic; border-top: .5px solid var(--rule); padding-top: 6px; }
-.a4-divider { border: none; border-top: 1.5px solid var(--rule); margin: 18px 0; }
-.a4-emergency { text-align: center; font-size: 9px; font-weight: 500; margin-top: 12px; font-style: italic; }
+.input-card-wrap { flex: 1; overflow-y: auto; padding: 12px 16px 24px; }
+.input-card { background: var(--paper); border-radius: 12px; box-shadow: var(--shadow); padding: 20px; }
+.input-field-section { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 8px; }
+.input-field-label { font-family: var(--serif); font-size: 18px; line-height: 1.35; margin-bottom: 6px; }
+.input-required-badge { display: inline-block; font-size: 10px; color: var(--danger); font-weight: 600; margin-bottom: 10px; }
+.input-help { font-size: 12px; color: var(--ink-muted); background: #f2f0eb; border-left: 3px solid var(--accent); padding: 8px 10px; border-radius: 0 var(--r) var(--r) 0; margin-bottom: 14px; line-height: 1.5; }
+.field-inp { width: 100%; background: #fff; border: 1.5px solid #c0bbb4; border-radius: var(--r); font-size: 16px; font-family: var(--sans); color: var(--ink); padding: 11px 13px; transition: border-color .15s; -webkit-appearance: none; }
+.field-inp:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(42,82,160,.12); }
 
-/* COMPLETE */
-#complete-screen { display: none; padding: 40px 24px; text-align: center; max-width: 480px; margin: 0 auto; }
-.complete-icon { width: 64px; height: 64px; border-radius: 50%; background: #e6f4ec; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 20px; }
-#complete-screen h2 { font-family: var(--serif); font-size: 22px; margin-bottom: 8px; }
-#complete-screen p { font-size: 14px; color: var(--ink-muted); margin-bottom: 24px; line-height: 1.6; }
-.btn-review, .btn-new { display: block; width: 100%; padding: 13px; border-radius: var(--r); font-size: 15px; font-family: var(--sans); cursor: pointer; margin-bottom: 10px; font-weight: 500; transition: all .15s; }
-.btn-review { background: var(--accent); color: #fff; border: none; }
-.btn-new { background: transparent; border: 1.5px solid var(--rule); color: var(--ink-muted); }
+/* DROPDOWN */
+.field-dropdown { width: 100%; background: #fff; border: 1.5px solid #c0bbb4; border-radius: var(--r); font-size: 16px; font-family: var(--sans); color: var(--ink); padding: 11px 13px; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; cursor: pointer; }
+.field-dropdown:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(42,82,160,.12); }
+
+/* ADDRESS AUTOCOMPLETE */
+.address-wrap { position: relative; }
+.pac-container { border-radius: var(--r) !important; box-shadow: var(--shadow) !important; font-family: var(--sans) !important; border: 1px solid var(--rule) !important; margin-top: 2px; }
+.address-status { font-size: 11px; color: var(--ink-faint); margin-top: 6px; font-style: italic; }
+
+/* CHECKBOX LIST */
+.cb-list { display: flex; flex-direction: column; gap: 8px; }
+.cb-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1.5px solid var(--rule); border-radius: var(--r); cursor: pointer; transition: all .15s; }
+.cb-item:hover { border-color: var(--accent); background: var(--accent-light); }
+.cb-item.on { border-color: var(--accent); background: var(--accent-light); }
+.cb-item input[type=checkbox] { width: 18px; height: 18px; margin-top: 1px; accent-color: var(--accent); flex-shrink: 0; cursor: pointer; }
+.cb-item span { font-size: 13px; line-height: 1.4; }
+.other-specify { margin-top: 8px; display: none; }
+.other-specify.visible { display: block; }
+.other-specify .field-inp { font-size: 15px; }
+
+/* SIGNATURE */
+.sig-wrap { border: 1.5px solid #c0bbb4; border-radius: var(--r); background: #fff; position: relative; }
+.sig-wrap canvas { display: block; width: 100%; height: 130px; cursor: crosshair; touch-action: none; }
+.sig-hint { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 13px; color: var(--ink-faint); pointer-events: none; font-style: italic; text-align: center; line-height: 1.6; }
+.sig-clear-btn { font-size: 11px; color: var(--accent); background: none; border: none; cursor: pointer; padding: 5px 0; font-family: var(--sans); display: block; margin-top: 4px; }
+
+/* NAV */
+.input-nav { display: flex; gap: 10px; margin-top: 18px; }
+.btn-nav-prev, .btn-nav-next, .btn-nav-done { flex: 1; padding: 14px; border-radius: var(--r); font-size: 15px; font-family: var(--sans); cursor: pointer; transition: all .15s; border: none; font-weight: 600; }
+.btn-nav-prev { background: transparent; border: 1.5px solid var(--rule); color: var(--ink-muted); }
+.btn-nav-next { background: var(--accent); color: #fff; }
+.btn-nav-next:hover { background: #1e3d7a; }
+.btn-nav-done { background: var(--success); color: #fff; }
+
+/* SUCCESS */
+#screen-success { background: #dedad4; align-items: center; justify-content: center; padding: 40px 24px; text-align: center; }
+.success-icon { width: 72px; height: 72px; border-radius: 50%; background: #e6f4ec; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px; }
+.success-title { font-family: var(--serif); font-size: 24px; margin-bottom: 8px; }
+.success-sub { font-size: 14px; color: var(--ink-muted); margin-bottom: 32px; line-height: 1.6; }
+.btn-full { display: block; width: 100%; max-width: 360px; margin: 0 auto 12px; padding: 14px; border-radius: var(--r); font-size: 15px; font-family: var(--sans); font-weight: 600; cursor: pointer; }
+.btn-primary { background: var(--accent); color: #fff; border: none; }
+.btn-secondary { background: transparent; border: 1.5px solid var(--rule); color: var(--ink-muted); }
+
+/* TOAST */
+#error-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--danger); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 999; white-space: nowrap; }
+#error-toast.show { opacity: 1; }
 </style>
 </head>
 <body>
 
-<div id="topbar">
-  <div class="brand">Formy<span>S</span></div>
-  <div id="view-toggle">
-    <button id="btn-field-view" class="active" onclick="setView('field')">Field</button>
-    <button id="btn-overview" onclick="setView('overview')">Overview</button>
+<!-- PORTAL -->
+<div id="screen-portal" class="screen active">
+  <div class="topbar"><div class="brand">Formy<span>S</span></div></div>
+  <div id="portal-content"></div>
+</div>
+
+<!-- VIEWER -->
+<div id="screen-viewer" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="goTo('portal')">‹</button>
+    <div class="viewer-title" id="viewer-title"></div>
+    <button class="btn-submit-final" onclick="trySubmit()">Submit</button>
+  </div>
+  <div class="a4-scroll">
+    <div class="a4-paper" id="a4-paper"></div>
   </div>
 </div>
 
-<div id="form-selector"></div>
-<div id="progress-bar"><div id="progress-fill"></div></div>
-<div id="progress-label"></div>
-<div id="field-view"></div>
-<div id="overview-view"></div>
-<div id="complete-screen">
-  <div class="complete-icon">✓</div>
-  <h2>Form Submitted</h2>
-  <p>Thank you. Your information has been recorded successfully.</p>
-  <button class="btn-review" onclick="setView('overview')">Review Completed Form</button>
-  <button class="btn-new" onclick="restartForm()">Fill Another Form</button>
+<!-- INPUT -->
+<div id="screen-input" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="goTo('viewer')">‹</button>
+    <div class="viewer-title" id="input-form-title"></div>
+  </div>
+  <div class="mini-preview-wrap">
+    <div class="mini-a4" id="mini-a4"></div>
+  </div>
+  <div class="input-card-wrap">
+    <div class="input-card" id="input-card"></div>
+  </div>
 </div>
 
+<!-- SUCCESS -->
+<div id="screen-success" class="screen">
+  <div class="success-icon">✓</div>
+  <div class="success-title">Form Submitted!</div>
+  <div class="success-sub">Thank you. Your information has been<br>recorded successfully.</div>
+  <button class="btn-full btn-primary" onclick="goTo('viewer')">Review Completed Form</button>
+  <button class="btn-full btn-secondary" onclick="goTo('portal')">Fill Another Form</button>
+</div>
+
+<div id="error-toast"></div>
+
+<!-- Google Places API — replace YOUR_API_KEY with actual key -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_API_KEY&libraries=places" async defer></script>
+
 <script>
-const FORM_LABELS = {
-  'f1': 'Release Authorization',
-  'f2': 'HIPAA Consent'
+// ═══════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════
+const GOOGLE_MAPS_READY = typeof google !== 'undefined';
+
+const CLIENT = {
+  name: "YNS Medical Institute",
+  tagline: "Patient Form Portal",
+  logo: "YNS"
 };
 
+const FIELD_HELP = {
+  patient_name:      "Enter your full legal name as it appears on your ID",
+  date_of_birth:     "Enter your date of birth in MM/DD/YYYY format",
+  email:             "Enter a valid email address (e.g. name@email.com)",
+  telephone:         "Enter your 10-digit phone number (e.g. 407-555-1234)",
+  address:           "Start typing your address — suggestions will appear automatically",
+  facility_name:     "Enter the full name of the hospital or clinic where you received treatment",
+  facility_phone:    "Enter the facility's main phone number",
+  facility_fax:      "Enter the facility's fax number if available",
+  facility_address:  "Enter the facility's full mailing address",
+  dates_treatment:   "Enter approximate dates (e.g. January 2023 – March 2023)",
+  reason_disclosure: "Select the reason you are requesting these records",
+  patient_signature: "Sign with your finger by drawing on the box below",
+  date_signed:       "Today's date has been filled in automatically. Change if needed.",
+  print_name:        "Print your full name clearly",
+  relationship:      "If signing for someone else, state your relationship (e.g. Parent, Guardian, Power of Attorney)",
+  consented_email:   "Enter the email address where you consent to receive health information",
+  consented_mobile:  "Enter the mobile number you consent to receive text messages (e.g. 407-555-1234)",
+  patient_signature_2: "Sign with your finger to confirm your consent for email/text communication",
+  date_signed_2:     "Today's date has been filled in automatically. Change if needed."
+};
+
+const TODAY = (() => {
+  const d = new Date();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  const yyyy = d.getFullYear();
+  return `${yyyy}-${mm}-${dd}`;
+})();
+
+const TODAY_DISPLAY = (() => {
+  const d = new Date();
+  return d.toLocaleDateString('en-US', { month:'2-digit', day:'2-digit', year:'numeric' });
+})();
+
+// ═══════════════════════════════════════
+// FORMS DATA
+// ═══════════════════════════════════════
 const FORMS = {
   f1: {
-    id:"yns-release-authorization",
-    client:"YNS Medical Institute, PLLC",
-    title:"Authorization for Release of Health Information from Other Healthcare Facilities",
-    version:"Rev.02/22",
-    legal_footer:"**If other than the patient's signature, a copy of legal paperwork verifying the patient's personal representative MUST accompany the request (i.e. court appointed guardian, durable power of attorney for health care). For a deceased patient: A death certificate coupled with executor or administrator of estate paperwork must accompany authorization. Exception: parent signing for patient under the age of 18.",
+    id:"f1", label:"Release Authorization", icon:"📋",
+    desc:"Authorization to release health records from another facility",
+    title:"Authorization for Release of Health Information\nfrom Other Healthcare Facilities",
+    legal_footer:"**If other than the patient's signature, a copy of legal paperwork verifying the patient's personal representative MUST accompany the request (i.e. court appointed guardian, durable power of attorney for health care).",
     sections:[
-      {id:"patient-info",title:"Patient Information",style:"header-dark",fields:[
-        {id:"patient_name",label:"Patient Name",type:"text",required:true,grid:"left"},
-        {id:"date_of_birth",label:"Date of Birth",type:"date",required:true,grid:"right"},
-        {id:"email",label:"Email",type:"email",required:false,grid:"left"},
-        {id:"telephone",label:"Telephone No",type:"tel",required:true,grid:"right"},
-        {id:"address",label:"Address",type:"text",required:false,grid:"full"}
+      { id:"s-pi", title:"Patient Information", style:"header-dark", fields:[
+        { id:"patient_name",   label:"Patient Name",  type:"text",  required:true,  grid:"left" },
+        { id:"date_of_birth",  label:"Date of Birth", type:"date",  required:true,  grid:"right" },
+        { id:"email",          label:"Email",         type:"email", required:false, grid:"left" },
+        { id:"telephone",      label:"Telephone No",  type:"tel",   required:true,  grid:"right" },
+        { id:"address",        label:"Address",       type:"address", required:false, grid:"full" }
       ]},
-      {id:"request-to",title:"Request To",style:"header-dark",fields:[
-        {id:"facility_name",label:"Name of Healthcare Facility from which Records are Requested",type:"text",required:true,grid:"full"},
-        {id:"facility_phone",label:"Telephone No.",type:"tel",required:false,grid:"left"},
-        {id:"facility_fax",label:"Fax No.",type:"tel",required:false,grid:"right"},
-        {id:"facility_address",label:"Address",type:"text",required:false,grid:"full"},
-        {id:"dates_treatment",label:"Dates of Treatment Requested",type:"text",required:false,grid:"left"},
-        {id:"reason_disclosure",label:"Reason For Disclosure",type:"text",required:false,grid:"right"}
+      { id:"s-rt", title:"Request To", style:"header-dark", fields:[
+        { id:"facility_name",     label:"Name of Healthcare Facility from which Records are Requested", type:"text", required:true,  grid:"full" },
+        { id:"facility_phone",    label:"Telephone No.", type:"tel",  required:false, grid:"left" },
+        { id:"facility_fax",      label:"Fax No.",       type:"tel",  required:false, grid:"right" },
+        { id:"facility_address",  label:"Address",       type:"text", required:false, grid:"full" },
+        { id:"dates_treatment",   label:"Dates of Treatment Requested", type:"text", required:false, grid:"left" },
+        { id:"reason_disclosure", label:"Reason For Disclosure", type:"dropdown", required:false, grid:"right",
+          options:["Select…","New Patient","Continue Treatment Initiated with Other Provider","New Treatment","Insurance / Legal Purpose","Personal Records"] }
       ]},
-      {id:"legal-notice",style:"legal-text",content:"I hereby authorize YNS MEDICAL INSTITUTE, PLLC., (YNS) to obtain the health information indicated below AND for the purpose of alternative means of confidential communication the use of their email address. YNS offers patients the opportunity to communicate by email. YNS will use reasonable means to protect the security and confidentiality of email information sent and received.",
-        static_info:{"Mail Information To":"YNS MEDICAL INSTITUTE, PLLC","Address":"6000 Metrowest Blvd, NO.:107, Orlando, FL 32835","Or Fax To":"(321) 214-7925","Email":"info@axisprimemedical.com"},fields:[]},
-      {id:"info-to-release",title:"Information To Be Released",style:"header-dark",fields:[
-        {id:"release_complete_record",label:"Complete Medical Record",type:"checkbox",grid:"left"},
-        {id:"release_operative",label:"Operative Reports",type:"checkbox",grid:"right"},
-        {id:"release_radiology",label:"Radiology Reports",type:"checkbox",grid:"left"},
-        {id:"release_pathology",label:"Pathology Reports",type:"checkbox",grid:"right"},
-        {id:"release_lab",label:"Lab Reports",type:"checkbox",grid:"left"},
-        {id:"release_other",label:"Other (please specify)",type:"checkbox",grid:"right"}
+      { id:"s-ln", style:"legal-text",
+        content:"I hereby authorize YNS MEDICAL INSTITUTE, PLLC., (YNS) to obtain the health information indicated below AND for the purpose of alternative means of confidential communication the use of their email address. YNS will use reasonable means to protect the security and confidentiality of email information sent and received.",
+        static_info:{"Mail Information To":"YNS MEDICAL INSTITUTE, PLLC","Address":"6000 Metrowest Blvd, NO.:107, Orlando, FL 32835","Or Fax To":"(321) 214-7925","Email":"info@axisprimemedical.com"}, fields:[] },
+      { id:"s-ir", title:"Information To Be Released", style:"header-dark", fields:[
+        { id:"release_complete",  label:"Complete Medical Record", type:"checkbox", grid:"left" },
+        { id:"release_operative", label:"Operative Reports",       type:"checkbox", grid:"right" },
+        { id:"release_radiology", label:"Radiology Reports",       type:"checkbox", grid:"left" },
+        { id:"release_pathology", label:"Pathology Reports",       type:"checkbox", grid:"right" },
+        { id:"release_lab",       label:"Lab Reports",             type:"checkbox", grid:"left" },
+        { id:"release_other",     label:"Other (please specify)",  type:"checkbox", grid:"right", hasOtherText:true }
       ]},
-      {id:"sensitive-info",style:"sensitive-notice",notice:"The Following information will not be released unless you specifically authorize it:",fields:[
-        {id:"sensitive_drug",label:"Drug/Alcohol Abuse or Treatment",type:"checkbox",grid:"left"},
-        {id:"sensitive_genetic",label:"Genetic Testing Information",type:"checkbox",grid:"right"},
-        {id:"sensitive_hiv",label:"HIV/AIDS, Sexually Transmitted Disease (STD) Test Results or Diagnoses",type:"checkbox",grid:"left"},
-        {id:"sensitive_mental",label:"Mental Health Treatment or Psychotherapy Notes",type:"checkbox",grid:"right"}
+      { id:"s-si", style:"sensitive-notice",
+        notice:"The Following information will not be released unless you specifically authorize it:", fields:[
+        { id:"sensitive_drug",    label:"Drug/Alcohol Abuse or Treatment",       type:"checkbox", grid:"left" },
+        { id:"sensitive_genetic", label:"Genetic Testing Information",           type:"checkbox", grid:"right" },
+        { id:"sensitive_hiv",     label:"HIV/AIDS, STD Test Results or Diagnoses", type:"checkbox", grid:"left" },
+        { id:"sensitive_mental",  label:"Mental Health Treatment or Psychotherapy Notes", type:"checkbox", grid:"right" }
       ]},
-      {id:"expiration",style:"legal-text",content:"This consent is subject to revocation at any time. This authorization will expire one year from the date of authorization written below. Your health care will not be affected by whether or not you sign this authorization.",fields:[]},
-      {id:"signature",style:"plain",fields:[
-        {id:"patient_signature",label:"Patient Signature (Guardian/Legal Representative)",type:"signature",required:true,grid:"left"},
-        {id:"date_signed",label:"Date Signed",type:"date",required:true,grid:"right"},
-        {id:"print_name",label:"Print Name",type:"text",required:true,grid:"left"},
-        {id:"relationship",label:"Relationship If Other Than Patient",type:"text",required:false,grid:"right"}
+      { id:"s-exp", style:"legal-text",
+        content:"This consent is subject to revocation at any time. This authorization and consent will expire one year from the date of authorization written below. Your health care will not be affected by whether or not you sign this authorization.", fields:[] },
+      { id:"s-sig", style:"plain", fields:[
+        { id:"patient_signature", label:"Patient Signature (Guardian/Legal Representative)", type:"signature", required:true,  grid:"left" },
+        { id:"date_signed",       label:"Date Signed", type:"date", required:true, grid:"right", autoToday:true },
+        { id:"print_name",        label:"Print Name",  type:"text", required:true, grid:"left" },
+        { id:"relationship",      label:"Relationship If Other Than Patient", type:"text", required:false, grid:"right" }
       ]}
     ]
   },
   f2: {
-    id:"yns-hipaa-consent",
-    client:"YNS Medical Institute, PLLC",
-    title:"HIPAA — Patient Consent for Use of Disclosure of Protected Health Information (PHI)\nAcknowledgment of Receipt of Notice of Privacy Practices",
-    version:"Rev.06/25",
+    id:"f2", label:"HIPAA Consent", icon:"🔒",
+    desc:"Privacy practices acknowledgment and email/text consent",
+    title:"HIPAA — Patient Consent for Use of Disclosure\nof Protected Health Information (PHI)",
     sections:[
-      {id:"hipaa-intro",style:"legal-text",content:"I acknowledge that I have been provided with YNS MEDICAL INSTITUTE, PLLC., \"Notice of Privacy Practices\", and I am giving my consent for the use and disclosure of Protected Health Information as required and / or permitted by law.",fields:[]},
-      {id:"hipaa-sig",style:"plain",fields:[
-        {id:"patient_name",label:"Patient Name (please print)",type:"text",required:true,grid:"full"},
-        {id:"patient_signature",label:"Patient Signature (or legal representative)",type:"signature",required:true,grid:"full"},
-        {id:"date_signed",label:"Date",type:"date",required:true,grid:"left"}
+      { id:"s-hi", style:"legal-text",
+        content:'I acknowledge that I have been provided with YNS MEDICAL INSTITUTE, PLLC., "Notice of Privacy Practices", and I am giving my consent for the use and disclosure of Protected Health Information as required and / or permitted by law.', fields:[] },
+      { id:"s-hs", style:"plain", fields:[
+        { id:"patient_name",      label:"Patient Name (please print)", type:"text",      required:true,  grid:"full" },
+        { id:"patient_signature", label:"Patient Signature",           type:"signature", required:true,  grid:"full" },
+        { id:"date_signed",       label:"Date", type:"date", required:true, grid:"left", autoToday:true }
       ]},
-      {id:"divider",style:"divider",fields:[]},
-      {id:"email-text-title",title:"Email/Text Message to Mobile Phone Consent Form",style:"header-centered",fields:[]},
-      {id:"email-text-purpose",style:"legal-text",content:"This form is used to obtain your consent to communicate with you by email/mobile text messaging regarding your Protected Health Information. YNS will use reasonable means to protect the security and confidentiality of this information. I acknowledge that I have read and fully understand this consent form.",fields:[]},
-      {id:"email-text-agreement",title:"Patient Acknowledgment & Agreement",style:"header-centered",fields:[
-        {id:"consented_email",label:"My Consented Email Address is",type:"email",required:false,grid:"full"},
-        {id:"consented_mobile",label:"My Consented Mobile Number For Text Messaging is",type:"tel",required:false,grid:"full"}
+      { id:"s-div", style:"divider", fields:[] },
+      { id:"s-et", title:"Email / Text Message to Mobile Phone Consent Form", style:"header-centered", fields:[] },
+      { id:"s-ep", style:"legal-text",
+        content:"This form is used to obtain your consent to communicate with you by email/mobile text messaging regarding your Protected Health Information. YNS will use reasonable means to protect the security and confidentiality of this information.", fields:[] },
+      { id:"s-ea", title:"Patient Acknowledgment & Agreement", style:"header-centered", fields:[
+        { id:"consented_email",  label:"My Consented Email Address is",                    type:"email", required:false, grid:"full" },
+        { id:"consented_mobile", label:"My Consented Mobile Number For Text Messaging is", type:"tel",   required:false, grid:"full" }
       ]},
-      {id:"email-text-sig",style:"plain",fields:[
-        {id:"patient_signature_2",label:"Patient Signature",type:"signature",required:true,grid:"left"},
-        {id:"date_signed_2",label:"Date",type:"date",required:true,grid:"right"}
+      { id:"s-es", style:"plain", fields:[
+        { id:"patient_signature_2", label:"Patient Signature", type:"signature", required:true, grid:"left" },
+        { id:"date_signed_2",       label:"Date", type:"date", required:true, grid:"right", autoToday:true }
       ]},
-      {id:"emergency",style:"emergency-footer",content:"IN CASE OF EMERGENCY: Please call 911 or proceed to the nearest emergency room.\nDo not use this way of communication for that purpose.",fields:[]}
+      { id:"s-em", style:"emergency-footer",
+        content:"IN CASE OF EMERGENCY: Please call 911 or proceed to the nearest emergency room.\nDo not use this way of communication for that purpose.", fields:[] }
     ]
   }
 };
 
-let currentKey = 'f1';
-let currentForm = null;
-let allFields = [];
-let currentIdx = 0;
-let answers = {};
-let sigData = {};
-let currentView = 'field';
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let currentFormKey = null;
+let currentForm    = null;
+let answers        = {};
+let sigData        = {};
+let allItems       = [];
+let activeIdx      = -1;
+let submitAttempted = false;
+let autocompleteInstance = null;
 
-function init() {
-  buildSelector();
-  loadForm('f1');
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+renderPortal();
+
+function goTo(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-'+screen).classList.add('active');
+  if (screen === 'viewer')  renderA4();
+  if (screen === 'portal')  renderPortal();
 }
 
-function buildSelector() {
-  const sel = document.getElementById('form-selector');
-  sel.innerHTML = Object.keys(FORMS).map(k =>
-    `<button class="form-tab${k===currentKey?' active':''}" onclick="loadForm('${k}')">${FORM_LABELS[k]}</button>`
-  ).join('');
+// ═══════════════════════════════════════
+// PORTAL
+// ═══════════════════════════════════════
+function renderPortal() {
+  document.getElementById('portal-content').innerHTML = `
+    <div class="portal-header">
+      <div class="portal-logo">${CLIENT.logo}</div>
+      <div class="portal-client">${CLIENT.name}</div>
+      <div class="portal-tagline">${CLIENT.tagline}</div>
+    </div>
+    <div class="portal-forms">
+      <h2>Available Forms</h2>
+      ${Object.values(FORMS).map(f=>`
+        <div class="form-card" onclick="openForm('${f.id}')">
+          <div class="form-card-icon">${f.icon}</div>
+          <div class="form-card-info">
+            <div class="form-card-title">${f.label}</div>
+            <div class="form-card-desc">${f.desc}</div>
+          </div>
+          <div class="form-card-arrow">›</div>
+        </div>`).join('')}
+    </div>
+    <div class="portal-footer">Powered by FormyS · formyes.com</div>
+  `;
 }
 
-function loadForm(key) {
-  currentKey = key;
-  currentForm = FORMS[key];
-  answers = {};
-  sigData = {};
-  currentIdx = 0;
-  document.querySelectorAll('.form-tab').forEach(t => {
-    t.classList.toggle('active', t.textContent === FORM_LABELS[key]);
-  });
-  buildFieldList();
-  setView('field');
-}
-
-function buildFieldList() {
-  allFields = [];
+function openForm(key) {
+  currentFormKey = key;
+  currentForm    = FORMS[key];
+  answers        = {};
+  sigData        = {};
+  submitAttempted = false;
+  // pre-fill auto-today fields
   currentForm.sections.forEach(sec => {
-    const noInput = ['legal-text','divider','emergency-footer'].includes(sec.style);
-    if (noInput) { allFields.push({type:'_section', section:sec}); return; }
-    if (sec.style === 'sensitive-notice') {
-      allFields.push({type:'_section', section:sec});
-      allFields.push({type:'_cbgroup', section:sec, fields:sec.fields});
-      return;
-    }
-    if (sec.style === 'header-centered') {
-      if (sec.fields && sec.fields.length > 0) {
-        sec.fields.forEach(f => allFields.push({type:'_field', section:sec, field:f}));
-      }
-      return;
-    }
+    (sec.fields||[]).forEach(f => { if (f.autoToday) answers[f.id] = TODAY; });
+  });
+  buildItemList();
+  document.getElementById('viewer-title').textContent      = currentForm.label;
+  document.getElementById('input-form-title').textContent  = currentForm.label;
+  goTo('viewer');
+}
+
+// ═══════════════════════════════════════
+// ITEM LIST
+// ═══════════════════════════════════════
+function buildItemList() {
+  allItems = [];
+  currentForm.sections.forEach(sec => {
     if (!sec.fields || sec.fields.length === 0) return;
     const checks = sec.fields.filter(f => f.type === 'checkbox');
     const inputs = sec.fields.filter(f => f.type !== 'checkbox');
-    inputs.forEach(f => allFields.push({type:'_field', section:sec, field:f}));
-    if (checks.length > 0) allFields.push({type:'_cbgroup', section:sec, fields:checks});
+    inputs.forEach(f => allItems.push({ kind:'field', section:sec, field:f }));
+    if (checks.length) allItems.push({ kind:'checks', section:sec, fields:checks });
   });
 }
 
-function setView(v) {
-  currentView = v;
-  document.getElementById('btn-field-view').classList.toggle('active', v==='field');
-  document.getElementById('btn-overview').classList.toggle('active', v==='overview');
-  document.getElementById('field-view').style.display = v==='field' ? 'block' : 'none';
-  document.getElementById('overview-view').style.display = v==='overview' ? 'block' : 'none';
-  document.getElementById('complete-screen').style.display = v==='complete' ? 'block' : 'none';
-  const hideUI = v === 'complete';
-  document.getElementById('progress-bar').style.display = hideUI ? 'none' : 'block';
-  document.getElementById('progress-label').style.display = hideUI ? 'none' : 'block';
-  document.getElementById('form-selector').style.display = hideUI ? 'none' : 'flex';
-  if (v === 'overview') renderOverview();
-  if (v === 'field') renderField();
-}
+// ═══════════════════════════════════════
+// A4 RENDER
+// ═══════════════════════════════════════
+function renderA4() {
+  const paper = document.getElementById('a4-paper');
+  const frm   = currentForm;
+  let html = `<div class="a4-form-title">${frm.title.replace(/\n/g,'<br>')}</div><hr class="a4-hr">`;
 
-function updateProgress() {
-  const total = allFields.filter(f => f.type === '_field' || f.type === '_cbgroup').length;
-  const done = allFields.filter(f => {
-    if (f.type === '_field') return !!answers[f.field.id];
-    if (f.type === '_cbgroup') return f.fields.some(cf => answers[cf.id]);
-    return false;
-  }).length;
-  const pct = total > 0 ? Math.round(done/total*100) : 0;
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('progress-label').textContent = `${done} of ${total} fields filled · ${pct}% complete`;
-}
+  frm.sections.forEach(sec => {
+    if (sec.style==='header-dark'     && sec.title) html += `<div class="a4-sec-header">${sec.title}</div>`;
+    if (sec.style==='header-centered' && sec.title) html += `<div class="a4-sec-centered">${sec.title}</div>`;
+    if (sec.style==='legal-text'      && sec.content) {
+      html += `<div class="a4-legal-text">${sec.content}</div>`;
+      if (sec.static_info) html += `<div class="a4-static-box">`+Object.entries(sec.static_info).map(([k,v])=>`<div><strong>${k}:</strong> ${v}</div>`).join('')+`</div>`;
+    }
+    if (sec.style==='sensitive-notice' && sec.notice) html += `<div class="a4-notice-text">${sec.notice}</div>`;
+    if (sec.style==='divider')           html += `<hr class="a4-divider-line">`;
+    if (sec.style==='emergency-footer' && sec.content) html += `<div class="a4-emergency-text">${sec.content.replace(/\n/g,'<br>')}</div>`;
+    if (!sec.fields || !sec.fields.length) return;
 
-function renderField() {
-  if (currentIdx < 0) currentIdx = 0;
-  if (currentIdx >= allFields.length) { setView('complete'); return; }
-  const item = allFields[currentIdx];
-  const fv = document.getElementById('field-view');
-  updateProgress();
-  const isLast = currentIdx === allFields.length - 1;
-  const navBack = currentIdx > 0 ? `<button class="btn-prev" onclick="prevField()">← Back</button>` : '';
-  const navNext = isLast
-    ? `<button class="btn-submit" onclick="submitForm()">Submit ✓</button>`
-    : `<button class="btn-next" onclick="nextField()">Next →</button>`;
-  const nav = `<div class="field-nav">${navBack}${navNext}</div>`;
+    const checks = sec.fields.filter(f=>f.type==='checkbox');
+    const sigs   = sec.fields.filter(f=>f.type==='signature');
+    const inputs = sec.fields.filter(f=>f.type!=='checkbox' && f.type!=='signature');
 
-  if (item.type === '_section') {
-    const sec = item.section;
-    let body = '';
-    if (sec.style === 'legal-text') {
-      body = `<div class="legal-card">${(sec.content||'').replace(/\n/g,'<br>')}</div>`;
-      if (sec.static_info) {
-        body += `<div class="legal-static">` + Object.entries(sec.static_info).map(([k,v]) => `<div><strong>${k}:</strong> ${v}</div>`).join('') + `</div>`;
+    // input fields
+    if (inputs.length) {
+      let i=0;
+      while(i<inputs.length){
+        const f=inputs[i];
+        const err = submitAttempted && f.required && !answers[f.id];
+        if(f.grid==='full'){
+          const display = f.type==='dropdown' ? (answers[f.id]&&answers[f.id]!=='Select…'?answers[f.id]:'') : (answers[f.id]||'');
+          html+=`<div class="a4-row cols-1"><div class="a4-field-cell${err?' has-error':''}" onclick="openField('${f.id}')" id="cell-${f.id}">
+            <span class="a4-field-lbl">${f.label}${f.required?'<span class="req-star">*</span>':''}</span>
+            <div class="a4-field-val${!display?' placeholder':''}">${display||'tap to fill'}</div>
+          </div></div>`;
+          i++;
+        } else {
+          const f2=inputs[i+1];
+          const d1=f.type==='dropdown'?(answers[f.id]&&answers[f.id]!=='Select…'?answers[f.id]:''):(answers[f.id]||'');
+          const d2=f2?(f2.type==='dropdown'?(answers[f2.id]&&answers[f2.id]!=='Select…'?answers[f2.id]:''):(answers[f2.id]||'')):null;
+          const e2=f2&&submitAttempted&&f2.required&&!answers[f2.id];
+          html+=`<div class="a4-row cols-2">
+            <div class="a4-field-cell${err?' has-error':''}" onclick="openField('${f.id}')" id="cell-${f.id}">
+              <span class="a4-field-lbl">${f.label}${f.required?'<span class="req-star">*</span>':''}</span>
+              <div class="a4-field-val${!d1?' placeholder':''}">${d1||'tap to fill'}</div>
+            </div>`;
+          if(f2){
+            html+=`<div class="a4-field-cell${e2?' has-error':''}" onclick="openField('${f2.id}')" id="cell-${f2.id}">
+              <span class="a4-field-lbl">${f2.label}${f2.required?'<span class="req-star">*</span>':''}</span>
+              <div class="a4-field-val${!d2?' placeholder':''}">${d2||'tap to fill'}</div>
+            </div>`;
+            i+=2;
+          } else { i++; }
+          html+=`</div>`;
+        }
       }
-    } else if (sec.style === 'divider') {
-      body = `<div style="text-align:center;color:var(--ink-faint);font-size:13px;padding:8px 0">— Section 2 of 2 —</div>`;
-    } else if (sec.style === 'emergency-footer') {
-      body = `<div style="text-align:center;font-size:13px;font-weight:500;line-height:1.6;padding:8px 0">${(sec.content||'').replace(/\n/g,'<br>')}</div>`;
     }
-    fv.innerHTML = `<div class="field-card">${body}${nav}</div>`;
-    return;
-  }
 
-  if (item.type === '_cbgroup') {
-    const fields = item.fields.filter(f => f.label);
-    let body = `<div class="field-section-label">${item.section.title || 'Select all that apply'}</div>`;
-    if (item.section.notice) body += `<div class="legal-card" style="font-size:11px;margin-bottom:14px">${item.section.notice}</div>`;
-    body += `<div class="checkbox-group">` + fields.map(f => {
-      const chk = answers[f.id] ? 'checked' : '';
-      const cls = answers[f.id] ? 'checkbox-item checked' : 'checkbox-item';
-      return `<label class="${cls}" id="cbl_${f.id}"><input type="checkbox" id="cb_${f.id}" ${chk} onchange="toggleCheck('${f.id}')"><span>${f.label.replace(/\n/g,'<br>')}</span></label>`;
-    }).join('') + `</div>`;
-    fv.innerHTML = `<div class="field-card">${body}${nav}</div>`;
-    return;
-  }
+    // checkboxes
+    if(checks.length){
+      html+=`<div class="a4-checks-grid" onclick="openChecks('${sec.id}')">`;
+      checks.forEach(cf=>{
+        const on=!!answers[cf.id];
+        html+=`<div class="a4-check-cell"><div class="a4-box${on?' ticked':''}">${on?'✓':''}</div><span>${cf.label}</span></div>`;
+      });
+      html+=`</div>`;
+      // show "other specify" value if filled
+      const otherField = checks.find(c=>c.hasOtherText);
+      if(otherField && answers[otherField.id] && answers[otherField.id+'_text']){
+        html+=`<div style="font-size:8px;color:#555;padding:2px 3px;font-style:italic">Other: ${answers[otherField.id+'_text']}</div>`;
+      }
+    }
 
-  if (item.type === '_field') {
-    const f = item.field;
-    const val = answers[f.id] || '';
-    let input = '';
-    if (f.type === 'signature') {
-      input = `<div class="sig-wrap"><canvas id="sigC_${f.id}" width="600" height="180"></canvas><div class="sig-placeholder" id="sigP_${f.id}">Sign here with your finger</div></div><button class="sig-clear" onclick="clearSig('${f.id}')">Clear</button>`;
-    } else if (f.type === 'date') {
-      input = `<input class="field-input" type="date" id="inp_${f.id}" value="${val}" onchange="save('${f.id}',this.value)">`;
-    } else if (f.type === 'email') {
-      input = `<input class="field-input" type="email" id="inp_${f.id}" value="${val}" placeholder="email@example.com" oninput="save('${f.id}',this.value)">`;
-    } else if (f.type === 'tel') {
-      input = `<input class="field-input" type="tel" id="inp_${f.id}" value="${val}" placeholder="(000) 000-0000" oninput="save('${f.id}',this.value)">`;
+    // signatures
+    if(sigs.length){
+      const dateF=sec.fields.find(f=>f.type==='date');
+      html+=`<div class="a4-sig-grid${sigs.length>1?' two':''}">`;
+      sigs.forEach(sf=>{
+        const sd=sigData[sf.id];
+        const err=submitAttempted&&sf.required&&!sd;
+        html+=`<div class="a4-sig-cell${err?' has-error':''}" onclick="openField('${sf.id}')" id="cell-${sf.id}">
+          <div class="a4-sig-cell-lbl">${sf.label}${sf.required?'<span class="req-star">*</span>':''}</div>
+          <div class="a4-sig-line">${sd?`<img src="${sd}">`:'&nbsp;'}</div>
+        </div>`;
+      });
+      if(dateF && sigs.length===1){
+        const dv=answers[dateF.id]?new Date(answers[dateF.id]+'T00:00:00').toLocaleDateString('en-US'):'';
+        const err=submitAttempted&&dateF.required&&!answers[dateF.id];
+        html+=`<div class="a4-sig-cell${err?' has-error':''}" onclick="openField('${dateF.id}')" id="cell-${dateF.id}">
+          <div class="a4-sig-cell-lbl">${dateF.label}${dateF.required?'<span class="req-star">*</span>':''}</div>
+          <div class="a4-sig-line"><span>${dv}</span></div>
+        </div>`;
+      }
+      html+=`</div>`;
+    }
+  });
+
+  if(frm.legal_footer) html+=`<div class="a4-footer-legal">${frm.legal_footer}</div>`;
+  paper.innerHTML=html;
+}
+
+// ═══════════════════════════════════════
+// OPEN FROM A4
+// ═══════════════════════════════════════
+function openField(fid){
+  const idx=allItems.findIndex(it=>it.kind==='field'&&it.field.id===fid);
+  if(idx===-1) return;
+  activeIdx=idx;
+  renderInputScreen();
+  goTo('input');
+}
+function openChecks(secId){
+  const idx=allItems.findIndex(it=>it.kind==='checks'&&it.section.id===secId);
+  if(idx===-1) return;
+  activeIdx=idx;
+  renderInputScreen();
+  goTo('input');
+}
+
+// ═══════════════════════════════════════
+// MINI A4
+// ═══════════════════════════════════════
+function renderMiniA4(){
+  const mini=document.getElementById('mini-a4');
+  const frm=currentForm;
+  const item=allItems[activeIdx];
+  const activeId=item&&item.kind==='field'?item.field.id:null;
+  let html=`<div class="mini-a4-title">${frm.title.replace(/\n/g,' · ')}</div><div class="mini-fields">`;
+  frm.sections.forEach(sec=>{
+    if(!sec.fields) return;
+    sec.fields.filter(f=>f.type!=='checkbox').forEach(f=>{
+      const isActive=f.id===activeId;
+      let val='';
+      if(f.type==='signature') val=sigData[f.id]?'✓ signed':'';
+      else if(f.type==='dropdown') val=answers[f.id]&&answers[f.id]!=='Select…'?answers[f.id]:'';
+      else val=answers[f.id]||'';
+      html+=`<div class="mini-field${isActive?' highlighted':''}">
+        <div class="mini-field-lbl">${f.label.substring(0,18)}${f.label.length>18?'…':''}</div>
+        <div class="mini-field-val">${val||(isActive?'← here':'')}</div>
+        ${isActive?'<div class="mini-arrow">◀</div>':''}
+      </div>`;
+    });
+  });
+  html+=`</div>`;
+  mini.innerHTML=html;
+}
+
+// ═══════════════════════════════════════
+// INPUT SCREEN
+// ═══════════════════════════════════════
+function renderInputScreen(){
+  renderMiniA4();
+  const card=document.getElementById('input-card');
+  const item=allItems[activeIdx];
+  if(!item) return;
+  const isFirst=activeIdx===0;
+  const isLast=activeIdx===allItems.length-1;
+  const nav=`<div class="input-nav">
+    ${!isFirst?'<button class="btn-nav-prev" onclick="navInput(-1)">← Back</button>':''}
+    <button class="${isLast?'btn-nav-done':'btn-nav-next'}" onclick="${isLast?'doneInput()':'navInput(1)'}">${isLast?'Done ✓':'Next →'}</button>
+  </div>`;
+
+  if(item.kind==='field'){
+    const f=item.field;
+    const help=FIELD_HELP[f.id]||'';
+    let inputHtml='';
+
+    if(f.type==='signature'){
+      inputHtml=`<div class="sig-wrap"><canvas id="sigC" width="600" height="180"></canvas>
+        <div class="sig-hint" id="sigHint">✍️<br>Sign here with your finger</div>
+      </div><button class="sig-clear-btn" onclick="clearSig()">Clear signature</button>`;
+    } else if(f.type==='dropdown'){
+      const val=answers[f.id]||'Select…';
+      inputHtml=`<select class="field-dropdown" id="main-inp" onchange="saveField('${f.id}',this.value)">
+        ${f.options.map(o=>`<option value="${o}"${o===val?' selected':''}>${o}</option>`).join('')}
+      </select>`;
+    } else if(f.type==='address'){
+      const val=answers[f.id]||'';
+      inputHtml=`<div class="address-wrap">
+        <input class="field-inp" type="text" id="address-inp" value="${val}" placeholder="Start typing your address…" oninput="saveField('${f.id}',this.value)" autocomplete="off">
+        <div class="address-status" id="addr-status"></div>
+      </div>`;
+    } else if(f.type==='date'){
+      const val=answers[f.id]||'';
+      inputHtml=`<input class="field-inp" type="date" id="main-inp" value="${val}" onchange="saveField('${f.id}',this.value)">`;
+    } else if(f.type==='email'){
+      const val=answers[f.id]||'';
+      inputHtml=`<input class="field-inp" type="email" id="main-inp" value="${val}" placeholder="email@example.com" oninput="saveField('${f.id}',this.value)">`;
+    } else if(f.type==='tel'){
+      const val=answers[f.id]||'';
+      inputHtml=`<input class="field-inp" type="tel" id="main-inp" value="${val}" placeholder="(407) 000-0000" oninput="saveField('${f.id}',this.value)">`;
     } else {
-      input = `<input class="field-input" type="text" id="inp_${f.id}" value="${val}" oninput="save('${f.id}',this.value)">`;
+      const val=answers[f.id]||'';
+      inputHtml=`<input class="field-inp" type="text" id="main-inp" value="${val}" oninput="saveField('${f.id}',this.value)">`;
     }
-    const secLabel = item.section.title ? `<div class="field-section-label">${item.section.title}</div>` : '';
-    fv.innerHTML = `<div class="field-card">${secLabel}<div class="field-label">${f.label}${f.required?'<span class="field-required">*</span>':''}</div>${input}${nav}</div>`;
-    if (f.type === 'signature') {
+
+    card.innerHTML=`
+      <div class="input-field-section">${item.section.title||'Fill in'}</div>
+      <div class="input-field-label">${f.label}</div>
+      ${f.required?'<div class="input-required-badge">* Required field</div>':''}
+      ${help?`<div class="input-help">${help}</div>`:''}
+      ${inputHtml}
+      ${nav}
+    `;
+
+    if(f.type==='signature'){
       initSig(f.id);
+    } else if(f.type==='address'){
+      initAutocomplete(f.id);
     } else {
-      setTimeout(() => { const el = document.getElementById('inp_'+f.id); if(el) el.focus(); }, 80);
+      setTimeout(()=>{ const el=document.getElementById('main-inp'); if(el) el.focus(); },80);
     }
+
+  } else if(item.kind==='checks'){
+    const fields=item.fields.filter(f=>f.label);
+    let cbHtml=`<div class="cb-list">`;
+    fields.forEach(f=>{
+      const on=!!answers[f.id];
+      cbHtml+=`<label class="cb-item${on?' on':''}" id="cbl_${f.id}">
+        <input type="checkbox" ${on?'checked':''} onchange="toggleCb('${f.id}')">
+        <span>${f.label}</span>
+      </label>`;
+      if(f.hasOtherText){
+        const otherVal=answers[f.id+'_text']||'';
+        cbHtml+=`<div class="other-specify${on?' visible':''}" id="other_${f.id}">
+          <input class="field-inp other-specify-inp" type="text" placeholder="Please specify…" value="${otherVal}" oninput="saveField('${f.id}_text',this.value)" style="font-size:15px">
+        </div>`;
+      }
+    });
+    cbHtml+=`</div>`;
+    card.innerHTML=`
+      <div class="input-field-section">${item.section.title||'Select options'}</div>
+      <div class="input-field-label">Select all that apply</div>
+      ${item.section.notice?`<div class="input-help">${item.section.notice}</div>`:''}
+      ${cbHtml}
+      ${nav}
+    `;
   }
 }
 
-function save(id, val) { answers[id] = val; updateProgress(); }
+// ═══════════════════════════════════════
+// FIELD ACTIONS
+// ═══════════════════════════════════════
+function saveField(id,val){ answers[id]=val; }
 
-function toggleCheck(id) {
-  answers[id] = !answers[id];
-  const lbl = document.getElementById('cbl_'+id);
-  if (lbl) lbl.classList.toggle('checked', !!answers[id]);
-  updateProgress();
+function toggleCb(id){
+  answers[id]=!answers[id];
+  const lbl=document.getElementById('cbl_'+id);
+  if(lbl) lbl.classList.toggle('on',!!answers[id]);
+  // handle "other specify" visibility
+  const otherDiv=document.getElementById('other_'+id);
+  if(otherDiv){
+    otherDiv.classList.toggle('visible',!!answers[id]);
+    if(!answers[id]) answers[id+'_text']='';
+  }
 }
 
-function nextField() { currentIdx++; renderField(); }
-function prevField() { if (currentIdx > 0) { currentIdx--; renderField(); } }
-function submitForm() { setView('complete'); }
-function restartForm() { loadForm(currentKey); }
+function navInput(dir){
+  activeIdx+=dir;
+  if(activeIdx<0) activeIdx=0;
+  if(activeIdx>=allItems.length) activeIdx=allItems.length-1;
+  renderInputScreen();
+}
 
+function doneInput(){ goTo('viewer'); }
+
+// ═══════════════════════════════════════
+// GOOGLE PLACES AUTOCOMPLETE
+// ═══════════════════════════════════════
+function initAutocomplete(fieldId){
+  setTimeout(()=>{
+    const input=document.getElementById('address-inp');
+    if(!input) return;
+    input.focus();
+    if(typeof google==='undefined'||!google.maps||!google.maps.places){
+      const status=document.getElementById('addr-status');
+      if(status) status.textContent='Type your full address manually (autocomplete not available)';
+      input.addEventListener('input',()=>saveField(fieldId,input.value));
+      return;
+    }
+    const ac=new google.maps.places.Autocomplete(input,{
+      componentRestrictions:{ country:'us' },
+      fields:['formatted_address'],
+      types:['address']
+    });
+    ac.addListener('place_changed',()=>{
+      const place=ac.getPlace();
+      if(place.formatted_address){
+        answers[fieldId]=place.formatted_address;
+        input.value=place.formatted_address;
+      }
+    });
+    autocompleteInstance=ac;
+  },150);
+}
+
+// ═══════════════════════════════════════
 // SIGNATURE
-function initSig(id) {
-  const canvas = document.getElementById('sigC_'+id);
-  if (!canvas) return;
-  const r = canvas.getBoundingClientRect();
-  const ratio = window.devicePixelRatio || 1;
-  canvas.width = r.width * ratio;
-  canvas.height = 120 * ratio;
-  const ctx = canvas.getContext('2d');
-  ctx.scale(ratio, ratio);
-  ctx.strokeStyle = '#1a1a1a';
-  ctx.lineWidth = 2;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  let drawing = false;
-  let hasData = false;
-  const ph = document.getElementById('sigP_'+id);
-
-  if (sigData[id]) {
-    const img = new Image();
-    img.onload = () => ctx.drawImage(img, 0, 0, r.width, 120);
-    img.src = sigData[id];
-    if (ph) ph.style.display = 'none';
-    hasData = true;
+// ═══════════════════════════════════════
+let _sigId=null;
+function initSig(fid){
+  _sigId=fid;
+  const canvas=document.getElementById('sigC');
+  if(!canvas) return;
+  const rect=canvas.getBoundingClientRect();
+  const ratio=window.devicePixelRatio||1;
+  canvas.width=rect.width*ratio;
+  canvas.height=130*ratio;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(ratio,ratio);
+  ctx.strokeStyle='#1a1a1a'; ctx.lineWidth=2.5; ctx.lineCap='round'; ctx.lineJoin='round';
+  let drawing=false, hasData=false;
+  if(sigData[fid]){
+    const img=new Image();
+    img.onload=()=>ctx.drawImage(img,0,0,rect.width,130);
+    img.src=sigData[fid];
+    const h=document.getElementById('sigHint'); if(h) h.style.display='none';
+    hasData=true;
   }
-
-  const pos = e => {
-    const br = canvas.getBoundingClientRect();
-    const s = e.touches ? e.touches[0] : e;
-    return { x: s.clientX - br.left, y: s.clientY - br.top };
-  };
-  canvas.addEventListener('mousedown', e => { drawing=true; const p=pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); if(ph) ph.style.display='none'; });
-  canvas.addEventListener('mousemove', e => { if(!drawing) return; const p=pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); hasData=true; });
-  canvas.addEventListener('mouseup', e => { drawing=false; if(hasData){sigData[id]=canvas.toDataURL(); answers[id]=sigData[id]; updateProgress();} });
-  canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing=true; const p=pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); if(ph) ph.style.display='none'; }, {passive:false});
-  canvas.addEventListener('touchmove', e => { e.preventDefault(); if(!drawing) return; const p=pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); hasData=true; }, {passive:false});
-  canvas.addEventListener('touchend', e => { e.preventDefault(); drawing=false; if(hasData){sigData[id]=canvas.toDataURL(); answers[id]=sigData[id]; updateProgress();} });
+  const pos=e=>{ const r=canvas.getBoundingClientRect(); const s=e.touches?e.touches[0]:e; return{x:s.clientX-r.left,y:s.clientY-r.top}; };
+  const start=e=>{ e.preventDefault(); drawing=true; const p=pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); const h=document.getElementById('sigHint'); if(h) h.style.display='none'; };
+  const move=e=>{ e.preventDefault(); if(!drawing) return; const p=pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); hasData=true; };
+  const end=e=>{ e.preventDefault(); drawing=false; if(hasData){ sigData[fid]=canvas.toDataURL(); answers[fid]=sigData[fid]; } };
+  canvas.addEventListener('mousedown',start);
+  canvas.addEventListener('mousemove',move);
+  canvas.addEventListener('mouseup',end);
+  canvas.addEventListener('touchstart',start,{passive:false});
+  canvas.addEventListener('touchmove',move,{passive:false});
+  canvas.addEventListener('touchend',end);
+}
+function clearSig(){
+  const canvas=document.getElementById('sigC');
+  if(!canvas) return;
+  canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+  if(_sigId){ sigData[_sigId]=null; answers[_sigId]=null; }
+  const h=document.getElementById('sigHint'); if(h) h.style.display='block';
 }
 
-function clearSig(id) {
-  const canvas = document.getElementById('sigC_'+id);
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  sigData[id] = null;
-  answers[id] = null;
-  const ph = document.getElementById('sigP_'+id);
-  if (ph) ph.style.display = 'block';
-  updateProgress();
-}
-
-// OVERVIEW
-function renderOverview() {
-  const ov = document.getElementById('overview-view');
-  const f = currentForm;
-  let html = `<div class="a4-sheet"><div class="a4-title">${f.title.replace(/\n/g,'<br>')}</div><hr class="a4-rule">`;
-
-  f.sections.forEach(sec => {
-    if (sec.style === 'header-dark' && sec.title) html += `<div class="a4-section-header">${sec.title}</div>`;
-    if (sec.style === 'header-centered' && sec.title) html += `<div class="a4-section-header-centered">${sec.title}</div>`;
-    if ((sec.style === 'legal-text') && sec.content) {
-      html += `<div class="a4-legal">${sec.content.replace(/\n/g,'<br>')}</div>`;
-      if (sec.static_info) {
-        html += `<div class="a4-static-info">` + Object.entries(sec.static_info).map(([k,v]) => `<div class="a4-static-item"><strong>${k}:</strong> ${v}</div>`).join('') + `</div>`;
-      }
-    }
-    if (sec.style === 'sensitive-notice' && sec.notice) html += `<div class="a4-notice">${sec.notice}</div>`;
-    if (sec.style === 'divider') html += `<hr class="a4-divider">`;
-    if (sec.style === 'emergency-footer' && sec.content) html += `<div class="a4-emergency">${sec.content.replace(/\n/g,'<br>')}</div>`;
-    if (!sec.fields || sec.fields.length === 0) return;
-
-    const checks = sec.fields.filter(f => f.type === 'checkbox');
-    const sigs = sec.fields.filter(f => f.type === 'signature');
-    const inputs = sec.fields.filter(f => f.type !== 'checkbox' && f.type !== 'signature');
-
-    if (inputs.length > 0) {
-      html += `<div class="a4-fields-grid">`;
-      inputs.forEach(field => {
-        const val = answers[field.id] || '';
-        html += `<div class="a4-field${field.grid==='full'?' full':''}"><span class="a4-field-label">${field.label}</span><div class="a4-field-value${!val?' empty':''}">${val||'&nbsp;'}</div></div>`;
-      });
-      html += `</div>`;
-    }
-    if (checks.length > 0) {
-      html += `<div class="a4-checkboxes">` + checks.filter(cf=>cf.label).map(cf => {
-        const checked = !!answers[cf.id];
-        return `<div class="a4-check-item"><div class="a4-box${checked?' checked':''}">${checked?'✓':''}</div><span>${cf.label.replace(/\n/g,'<br>')}</span></div>`;
-      }).join('') + `</div>`;
-    }
-    if (sigs.length > 0) {
-      html += `<div class="a4-sig-row${sigs.length>1?' two-col':''}">`;
-      sigs.forEach(sf => {
-        const sd = sigData[sf.id];
-        html += `<div><div class="a4-sig-label">${sf.label}</div><div class="a4-sig-line">${sd?`<img class="a4-sig-img" src="${sd}">`:'&nbsp;'}</div></div>`;
-      });
-      const dateF = sec.fields.find(f => f.type==='date');
-      if (dateF && sigs.length===1) {
-        const dv = answers[dateF.id]||'';
-        html += `<div><div class="a4-sig-label">${dateF.label}</div><div class="a4-sig-line"><span class="a4-sig-value">${dv}</span></div></div>`;
-      }
-      html += `</div>`;
-    }
+// ═══════════════════════════════════════
+// SUBMIT
+// ═══════════════════════════════════════
+function trySubmit(){
+  submitAttempted=true;
+  const missing=[];
+  currentForm.sections.forEach(sec=>{
+    (sec.fields||[]).forEach(f=>{
+      if(!f.required) return;
+      const val=f.type==='signature'?sigData[f.id]:answers[f.id];
+      if(!val||val==='Select…') missing.push(f);
+    });
   });
-
-  if (f.legal_footer) html += `<div class="a4-footer">${f.legal_footer}</div>`;
-  html += `</div>`;
-  ov.innerHTML = html;
+  if(missing.length){
+    renderA4();
+    showToast(`${missing.length} required field${missing.length>1?'s':''} missing`);
+    setTimeout(()=>{
+      const el=document.getElementById('cell-'+missing[0].id);
+      if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+    },150);
+    return;
+  }
+  goTo('success');
 }
 
-init();
+function showToast(msg){
+  const t=document.getElementById('error-toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
 </script>
 </body>
 </html>
